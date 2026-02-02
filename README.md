@@ -1,15 +1,30 @@
-# Sistema de Arquivo
+## File System Simulator (Kotlin)
 
-Sistema Java desenvolvido na matéria de **Sistemas Operacionais 2** pelo curso **Engenharia de Computação - Instituto Federal do Sul de Minas Gerais Campus Poços de Caldas**
+This project is a Kotlin-based file system simulator created for the **Operating Systems 2** course in the **Computer Engineering** program at **Instituto Federal do Sul de Minas Gerais (Poços de Caldas campus)**.
 
-# Objetivo
+See the Portuguese version in `README.pt.md`.
 
-Foi desenvolvido um sistema de arquivos para um Sistema Operacional. É simulado um sistema de armazenamento binário, visando abstrair a leitura em disco das informações e assim implementar comandos como **ls, mkdir, cat** entre outros de um Sistema Linux.
+### Objective
 
-Para implementação, era livre a escolha da quantidade de bits para execução do sistema, analisando as limitações do sistema como: 
-  * limite de espaço de armazenamento
-  * tamanho máximo do nome do arquivos 
-  * tamanho máximo de um arquivo
+The system simulates a binary storage layer to abstract disk reads and enables Linux-style commands such as `ls`, `mkdir`, and `cat`. It was designed with configurable bit-length choices to explore system constraints like:
 
+- storage space limits
+- maximum file name size
+- maximum file size
 
-O sistema possui uma interface gráfica inspirada em um terminal de Linux. Nele é possível armazenar as últimas instruções e realizar todo o processo de escrita, leitura e deletar arquivos do sistema.
+### Features
+
+- graphical interface inspired by a Linux terminal
+- command history and terminal-like execution
+- file creation, listing, reading, and deletion simulation
+
+### Project structure
+
+Source code is located in `src/` and is fully migrated to Kotlin.
+
+### Build and run (Gradle)
+
+```bash
+./gradlew build
+./gradlew run
+```
