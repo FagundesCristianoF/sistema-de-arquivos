@@ -10,49 +10,50 @@ class Content(
 ) {
     fun generateBinary(content: String): Int {
         val position = spaceManager.getFreePosition()
-        val binary = StringBuilder()
-        binary.append("11")
-        var textBinary = ""
-        if (content.length < fsConstants.CONTENT_CHUNK_CHARS) {
-            for (i in content.indices) {
-                textBinary += Integer.toBinaryString(fsConstants.BYTE_PREFIX or content[i].code).substring(1)
+        val block =
+            if (content.length < fsConstants.CONTENT_CHUNK_CHARS) {
+                buildString {
+                    append("11")
+                    val textBinary =
+                        buildString {
+                            for (c in content) {
+                                append((fsConstants.BYTE_PREFIX or c.code).toString(2).substring(1))
+                            }
+                        }
+                    append(binaryFormat.padBinary(textBinary, fsConstants.CONTENT_DATA_BITS))
+                    append("0")
+                    append("0000000000000")
+                }.padEnd(fsConstants.CONTENT_BLOCK_BITS, '0')
+            } else {
+                buildString {
+                    append("11")
+                    for (i in 0 until fsConstants.CONTENT_CHUNK_CHARS) {
+                        append((fsConstants.BYTE_PREFIX or content[i].code).toString(2).substring(1))
+                    }
+                    append("1")
+                    val nextContent = generateBinary(content.substring(fsConstants.CONTENT_CHUNK_CHARS))
+                    append(binaryFormat.padBinary(nextContent.toString(2), fsConstants.POINTER_BITS))
+                    append("00000")
+                }
             }
-            binary.append(binaryFormat.padBinary(textBinary, fsConstants.CONTENT_DATA_BITS))
-            binary.append("0")
-            binary.append("0000000000000")
-            while (binary.toString().length < fsConstants.CONTENT_BLOCK_BITS) {
-                binary.append("0")
-            }
-            hardDisk.writeBlock(binary.toString(), position)
-        } else {
-            for (i in 0 until fsConstants.CONTENT_CHUNK_CHARS) {
-                textBinary += Integer.toBinaryString(fsConstants.BYTE_PREFIX or content[i].code).substring(1)
-            }
-            binary.append(textBinary)
-            binary.append("1")
-            val nextContent = generateBinary(content.substring(fsConstants.CONTENT_CHUNK_CHARS))
-            binary.append(binaryFormat.padBinary(Integer.toBinaryString(nextContent), fsConstants.POINTER_BITS))
-            binary.append("00000")
-            hardDisk.writeBlock(binary.toString(), position)
-        }
+        hardDisk.writeBlock(block, position)
         return position
     }
 
     fun parseBinary(binary: String): String {
-        var result = ""
-        var i = fsConstants.CONTENT_HEADER_BITS
-        while (i < fsConstants.CONTENT_DATA_BITS) {
-            result += (Integer.parseInt(binary.substring(i, i + 8), 2)).toChar()
-            i += 8
+        val result =
+            buildString {
+                var i = fsConstants.CONTENT_HEADER_BITS
+                while (i < fsConstants.CONTENT_DATA_BITS) {
+                    append(binary.substring(i, i + 8).toInt(2).toChar())
+                    i += 8
+                }
+            }
+        return if (binary[fsConstants.CONTENT_CONTINUE_BIT_INDEX] == '1') {
+            val nextContent = binary.substring(fsConstants.CONTENT_NEXT_PTR_START, fsConstants.CONTENT_NEXT_PTR_END).toInt(2)
+            (result + parseBinary(hardDisk.readBlock(nextContent))).replace(0.toChar().toString(), "")
+        } else {
+            result.replace(0.toChar().toString(), "")
         }
-        if (binary[fsConstants.CONTENT_CONTINUE_BIT_INDEX] == '1') {
-            val nextContent =
-                Integer.parseInt(
-                    binary.substring(fsConstants.CONTENT_NEXT_PTR_START, fsConstants.CONTENT_NEXT_PTR_END),
-                    2,
-                )
-            result += parseBinary(hardDisk.readBlock(nextContent))
-        }
-        return result.replace(0.toChar().toString(), "")
     }
 }

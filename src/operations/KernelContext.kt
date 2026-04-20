@@ -55,7 +55,7 @@ interface KernelContext {
     ): Int
 
     fun fileDoesNotExist(
-        children: ArrayList<String>,
+        children: List<String>,
         name: String,
     ): Boolean
 
@@ -257,7 +257,7 @@ class DefaultKernelContext(
     }
 
     override fun fileDoesNotExist(
-        children: ArrayList<String>,
+        children: List<String>,
         name: String,
     ): Boolean {
         var result = true

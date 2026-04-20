@@ -25,13 +25,10 @@ class Pointers(
 
     fun getNextPointer(): Int = nextPointer
 
-    fun parseBinary(binary: String): ArrayList<String> {
-        val childrenList = ArrayList<String>()
+    fun parseBinary(binary: String): MutableList<String> {
+        val childrenList = mutableListOf<String>()
         this.parent =
-            Integer.parseInt(
-                binary.substring(fsConstants.POINTER_PARENT_START, fsConstants.POINTER_PARENT_END),
-                2,
-            )
+            binary.substring(fsConstants.POINTER_PARENT_START, fsConstants.POINTER_PARENT_END).toInt(2)
         childrenList.add(".." + "-" + this.parent)
         for (i in fsConstants.POINTER_USED_START until fsConstants.POINTER_USED_START + fsConstants.POINTER_USED_COUNT) {
             if (binary[i] == '1') {
@@ -40,10 +37,7 @@ class Pointers(
                         fsConstants.POINTER_CHILDREN_START
                 usedSlots[i - fsConstants.POINTER_USED_START] = true
                 val position =
-                    Integer.parseInt(
-                        binary.substring(initial, initial + fsConstants.POINTER_BITS),
-                        2,
-                    )
+                    binary.substring(initial, initial + fsConstants.POINTER_BITS).toInt(2)
                 val block = hardDisk.readBlock(position)
                 if (block.subSequence(0, 2) == "00") {
                     val entry =
@@ -85,7 +79,7 @@ class Pointers(
     }
 
     fun loadMoreChildren(
-        childrenList: ArrayList<String>,
+        childrenList: MutableList<String>,
         blockIndex: Int,
     ) {
         val nextPointers =
@@ -107,10 +101,7 @@ class Pointers(
                         fsConstants.POINTER_CHILDREN_START
                 nextPointers.getUsedSlots()[i - fsConstants.POINTER_USED_START] = true
                 val position =
-                    Integer.parseInt(
-                        binary.substring(inicio, inicio + fsConstants.POINTER_BITS),
-                        2,
-                    )
+                    binary.substring(inicio, inicio + fsConstants.POINTER_BITS).toInt(2)
                 val block = hardDisk.readBlock(position)
                 if (block.subSequence(0, 2) == "00") {
                     val entry =
@@ -164,14 +155,13 @@ class Pointers(
     fun generateBinary(): String {
         val binary = StringBuilder()
         binary.append("10")
-        val parentBinary = Integer.toBinaryString(parent)
-        binary.append(padBinary(parentBinary, fsConstants.POINTER_BITS))
+        binary.append(padBinary(parent.toString(2), fsConstants.POINTER_BITS))
         var usedBits = ""
         var childrenBits = ""
         for (i in 0 until fsConstants.POINTERS_COUNT) {
             if (usedSlots[i]) {
                 usedBits += "1"
-                childrenBits += padBinary(Integer.toBinaryString(children[i]), fsConstants.POINTER_BITS)
+                childrenBits += padBinary(children[i].toString(2), fsConstants.POINTER_BITS)
             } else {
                 usedBits += "0"
                 childrenBits += emptyPointer()
@@ -181,7 +171,7 @@ class Pointers(
         binary.append(childrenBits)
         if (hasMore) {
             binary.append("1")
-            binary.append(padBinary(Integer.toBinaryString(spaceManager.getFreePosition()), fsConstants.POINTER_BITS))
+            binary.append(padBinary(spaceManager.getFreePosition().toString(2), fsConstants.POINTER_BITS))
         } else {
             binary.append("0")
             binary.append(emptyPointer())
@@ -194,13 +184,7 @@ class Pointers(
     private fun padBinary(
         s: String,
         size: Int,
-    ): String {
-        var sLocal = s
-        while (sLocal.length < size) {
-            sLocal = "0$sLocal"
-        }
-        return sLocal
-    }
+    ): String = s.padStart(size, '0')
 
     fun addChild(child: Int): String {
         var result = ""
@@ -212,7 +196,7 @@ class Pointers(
                 inserted = true
                 children[i] = child
                 hardDisk.writePointer(
-                    padBinary(Integer.toBinaryString(child), fsConstants.POINTER_BITS),
+                    padBinary(child.toString(2), fsConstants.POINTER_BITS),
                     fsConstants.DATA_REGION_START +
                         (currentPosition * fsConstants.BLOCK_SIZE_BITS) +
                         fsConstants.POINTER_CHILDREN_START +
