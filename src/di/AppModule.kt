@@ -9,7 +9,6 @@ import abstraction.DefaultSpaceManager
 import abstraction.FsConstants
 import abstraction.PermissionUtils
 import abstraction.SpaceManager
-import binary.Binary
 import hardware.DefaultHardDisk
 import hardware.HardDisk
 import infra.ConsoleLogger
@@ -45,7 +44,6 @@ val appModule =
         singleOf(::DefaultSpaceManager) bind SpaceManager::class
         singleOf(::DefaultPermissionUtils) bind PermissionUtils::class
         factoryOf(::Content)
-        singleOf(::Binary)
         singleOf(::DefaultKernelContext) bind KernelContext::class
         singleOf(::LsOperation)
         singleOf(::MkdirOperation)

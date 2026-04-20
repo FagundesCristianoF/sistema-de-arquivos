@@ -8,7 +8,6 @@ import abstraction.FsConstants
 import abstraction.PermissionUtils
 import abstraction.Pointers
 import abstraction.SpaceManager
-import binary.Binary
 import hardware.HardDisk
 import infra.Logger
 
@@ -21,7 +20,6 @@ interface KernelContext {
     val binaryFormat: BinaryFormat
     val permissionUtils: PermissionUtils
     val content: Content
-    val binary: Binary
 
     fun log(message: Any)
 
@@ -75,7 +73,6 @@ class DefaultKernelContext(
     override val binaryFormat: BinaryFormat,
     override val permissionUtils: PermissionUtils,
     override val content: Content,
-    override val binary: Binary,
 ) : KernelContext {
     override var currentDiskPosition: Int = 0
 
