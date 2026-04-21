@@ -23,7 +23,7 @@ class RmdirOperation(
         val pointers = context.newPointers(current.childrenPointer)
         val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
         if (children.size == 1) {
-            val parentPointer = pointers.getParent()
+            val parentPointer = pointers.parent
             val parent = context.newCurrentDirectory()
             parent.parseBinary(context.hardDisk.readBlock(parentPointer))
             val grandParent = context.newCurrentDirectory()

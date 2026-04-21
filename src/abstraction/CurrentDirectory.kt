@@ -85,7 +85,7 @@ class CurrentDirectory(
                 content = content,
                 logger = logger,
             )
-        pointers.setParent(parentPosition)
+        pointers.parent = parentPosition
         hardDisk.writeBlock(pointers.generateBinary(), childrenPointerPosition)
     }
 }

@@ -13,17 +13,11 @@ class Pointers(
     private val content: Content,
     private val logger: Logger,
 ) {
-    private var parent = 0
-    private var hasMore = false
-    private var nextPointer = 0
-    private val usedSlots = BooleanArray(fsConstants.POINTERS_COUNT)
-    private val children = IntArray(fsConstants.POINTERS_COUNT)
-
-    fun getParent(): Int = parent
-
-    fun hasContinuation(): Boolean = hasMore
-
-    fun getNextPointer(): Int = nextPointer
+    var parent = 0
+    var hasContinuation = false
+    var nextPointer = 0
+    val usedSlots = BooleanArray(fsConstants.POINTERS_COUNT)
+    val children = IntArray(fsConstants.POINTERS_COUNT)
 
     fun parseBinary(binary: String): MutableList<String> {
         val childrenList = mutableListOf<String>()
@@ -39,40 +33,11 @@ class Pointers(
                 val position =
                     binary.substring(initial, initial + fsConstants.POINTER_BITS).toInt(2)
                 val block = hardDisk.readBlock(position)
-                if (block.subSequence(0, 2) == "00") {
-                    val entry =
-                        CurrentDirectory(
-                            hardDisk,
-                            spaceManager,
-                            fsConstants,
-                            binaryFormat,
-                            permissionUtils,
-                            content,
-                            logger,
-                        )
-                    entry.parseBinary(block)
-                    val result =
-                        entry.name.replace(0.toChar().toString(), "") +
-                            "-" + position + "-" + (i - fsConstants.POINTER_USED_START)
-                    childrenList.add(result)
-                }
-                if (block.subSequence(0, 2) == "01") {
-                    val entry =
-                        FileEntry(
-                            binaryFormat,
-                            fsConstants,
-                            permissionUtils,
-                            content,
-                        )
-                    entry.parseBinary(block)
-                    val result =
-                        entry.name.replace(0.toChar().toString(), "") +
-                            "-" + position + "-" + (i - fsConstants.POINTER_USED_START)
-                    childrenList.add(result)
-                }
+                val result = entryNameFromBlock(block, position, i - fsConstants.POINTER_USED_START)
+                if (result != null) childrenList.add(result)
             }
         }
-        if (hasMore) {
+        if (hasContinuation) {
             loadMoreChildren(childrenList, nextPointer)
         }
         return childrenList
@@ -99,42 +64,38 @@ class Pointers(
                 val inicio =
                     (i - fsConstants.POINTER_USED_START) * fsConstants.POINTER_BITS +
                         fsConstants.POINTER_CHILDREN_START
-                nextPointers.getUsedSlots()[i - fsConstants.POINTER_USED_START] = true
+                nextPointers.usedSlots[i - fsConstants.POINTER_USED_START] = true
                 val position =
                     binary.substring(inicio, inicio + fsConstants.POINTER_BITS).toInt(2)
                 val block = hardDisk.readBlock(position)
-                if (block.subSequence(0, 2) == "00") {
-                    val entry =
-                        CurrentDirectory(
-                            hardDisk,
-                            spaceManager,
-                            fsConstants,
-                            binaryFormat,
-                            permissionUtils,
-                            content,
-                            logger,
-                        )
-                    entry.parseBinary(block)
-                    val result = entry.name.replace(0.toChar().toString(), "") + "-" + position
-                    childrenList.add(result)
-                }
-                if (block.subSequence(0, 2) == "01") {
-                    val entry =
-                        FileEntry(
-                            binaryFormat,
-                            fsConstants,
-                            permissionUtils,
-                            content,
-                        )
-                    entry.parseBinary(block)
-                    childrenList.add(entry.name + "-" + nextPointers.getChildren()[position])
-                }
+                val result = entryNameFromBlock(block, position, i - fsConstants.POINTER_USED_START)
+                if (result != null) childrenList.add(result)
             }
         }
-        if (hasMore) {
-            loadMoreChildren(childrenList, nextPointers.getNextPointer())
+        if (hasContinuation) {
+            loadMoreChildren(childrenList, nextPointers.nextPointer)
         }
     }
+
+    private fun entryNameFromBlock(
+        block: String,
+        position: Int,
+        slotIndex: Int,
+    ): String? =
+        when (block.substring(0, 2)) {
+            "00" -> {
+                val entry =
+                    CurrentDirectory(hardDisk, spaceManager, fsConstants, binaryFormat, permissionUtils, content, logger)
+                entry.parseBinary(block)
+                "${entry.name.replace(0.toChar().toString(), "")}-$position-$slotIndex"
+            }
+            "01" -> {
+                val entry = FileEntry(binaryFormat, fsConstants, permissionUtils, content)
+                entry.parseBinary(block)
+                "${entry.name.replace(0.toChar().toString(), "")}-$position-$slotIndex"
+            }
+            else -> null
+        }
 
     fun setUsedPosition(
         value: Boolean,
@@ -144,40 +105,31 @@ class Pointers(
         hardDisk.writeBlock(generateBinary(), currentPosition)
     }
 
-    fun getUsedSlots(): BooleanArray = usedSlots
-
-    fun getChildren(): IntArray = children
-
-    fun setParent(parent: Int) {
-        this.parent = parent
-    }
-
-    fun generateBinary(): String {
-        val binary = StringBuilder()
-        binary.append("10")
-        binary.append(padBinary(parent.toString(2), fsConstants.POINTER_BITS))
-        var usedBits = ""
-        var childrenBits = ""
-        for (i in 0 until fsConstants.POINTERS_COUNT) {
-            if (usedSlots[i]) {
-                usedBits += "1"
-                childrenBits += padBinary(children[i].toString(2), fsConstants.POINTER_BITS)
+    fun generateBinary(): String =
+        buildString {
+            append("10")
+            append(padBinary(parent.toString(2), fsConstants.POINTER_BITS))
+            val usedBits = StringBuilder()
+            val childrenBits = StringBuilder()
+            for (i in 0 until fsConstants.POINTERS_COUNT) {
+                if (usedSlots[i]) {
+                    usedBits.append("1")
+                    childrenBits.append(padBinary(children[i].toString(2), fsConstants.POINTER_BITS))
+                } else {
+                    usedBits.append("0")
+                    childrenBits.append(emptyPointer())
+                }
+            }
+            append(usedBits)
+            append(childrenBits)
+            if (hasContinuation) {
+                append("1")
+                append(padBinary(spaceManager.getFreePosition().toString(2), fsConstants.POINTER_BITS))
             } else {
-                usedBits += "0"
-                childrenBits += emptyPointer()
+                append("0")
+                append(emptyPointer())
             }
         }
-        binary.append(usedBits)
-        binary.append(childrenBits)
-        if (hasMore) {
-            binary.append("1")
-            binary.append(padBinary(spaceManager.getFreePosition().toString(2), fsConstants.POINTER_BITS))
-        } else {
-            binary.append("0")
-            binary.append(emptyPointer())
-        }
-        return binary.toString()
-    }
 
     private fun emptyPointer(): String = "0000000000000000"
 
@@ -215,7 +167,7 @@ class Pointers(
         if (!inserted) {
             logger.warn("System full")
             result = "Unable to create directory - system full"
-            if (hasMore) {
+            if (hasContinuation) {
                 val next =
                     Pointers(
                         this.nextPointer,
@@ -240,9 +192,9 @@ class Pointers(
                         content,
                         logger,
                     )
-                hasMore = true
+                hasContinuation = true
                 this.nextPointer = newNext.getCurrentPosition()
-                newNext.setParent(parent)
+                newNext.parent = parent
                 newNext.addChild(child)
             }
         }

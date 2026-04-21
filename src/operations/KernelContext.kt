@@ -157,34 +157,34 @@ class DefaultKernelContext(
         )
 
     override fun listDirectoryDetailed(directoryPointer: Int): String {
-        val output = StringBuilder()
         val current = newCurrentDirectory()
         current.parseBinary(hardDisk.readBlock(directoryPointer))
         val pointers = newPointers(current.childrenPointer)
         val children = pointers.parseBinary(hardDisk.readBlock(current.childrenPointer))
-        for (i in children.indices) {
-            val split = children[i].split("-")
-            if (split[0].contains(".txt")) {
-                output.append(split[0])
-                val file = newFileEntry()
-                file.parseBinary(hardDisk.readBlock(split[1].toInt()))
-                output.append(" ")
-                output.append(file.permission)
-                output.append(" ")
-                output.append(file.date)
-                output.append("\n")
-            } else {
-                output.append(split[0])
-                val directory = newCurrentDirectory()
-                directory.parseBinary(hardDisk.readBlock(split[1].toInt()))
-                output.append(" ")
-                output.append(directory.permission)
-                output.append(" ")
-                output.append(directory.date)
-                output.append("\n")
+        return buildString {
+            for (i in children.indices) {
+                val split = children[i].split("-")
+                if (split[0].contains(".txt")) {
+                    append(split[0])
+                    val file = newFileEntry()
+                    file.parseBinary(hardDisk.readBlock(split[1].toInt()))
+                    append(" ")
+                    append(file.permission)
+                    append(" ")
+                    append(file.date)
+                    append("\n")
+                } else {
+                    append(split[0])
+                    val directory = newCurrentDirectory()
+                    directory.parseBinary(hardDisk.readBlock(split[1].toInt()))
+                    append(" ")
+                    append(directory.permission)
+                    append(" ")
+                    append(directory.date)
+                    append("\n")
+                }
             }
         }
-        return output.toString()
     }
 
     override fun findChildDirectoryPointer(
@@ -255,17 +255,7 @@ class DefaultKernelContext(
     override fun fileDoesNotExist(
         children: List<String>,
         name: String,
-    ): Boolean {
-        var result = true
-        for (i in children.indices) {
-            val split = children[i].split("-")
-            if (split[0] == name) {
-                result = false
-                break
-            }
-        }
-        return result
-    }
+    ): Boolean = children.none { it.split("-")[0] == name }
 
     override fun dumpDirectory(
         directoryPointer: Int,
