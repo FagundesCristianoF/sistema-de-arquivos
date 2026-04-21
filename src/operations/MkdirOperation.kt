@@ -24,8 +24,8 @@ class MkdirOperation(
             var exists = false
             val current = context.newCurrentDirectory()
             current.parseBinary(context.hardDisk.readBlock(directoryPointer))
-            val pointers = context.newPointers(current.getChildrenPointer())
-            val children = pointers.parseBinary(context.hardDisk.readBlock(current.getChildrenPointer()))
+            val pointers = context.newPointers(current.childrenPointer)
+            val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
             for (entry in children) {
                 context.log(entry)
             }
@@ -38,10 +38,10 @@ class MkdirOperation(
             }
             if (!exists) {
                 val child = context.newCurrentDirectory(name, directoryPointer)
-                val positionToAdd = child.getCurrentPosition()
+                val positionToAdd = child.currentPosition
                 val parent = context.newCurrentDirectory()
                 parent.parseBinary(context.hardDisk.readBlock(directoryPointer))
-                val parentPointers = context.newPointers(parent.getChildrenPointer())
+                val parentPointers = context.newPointers(parent.childrenPointer)
                 result = parentPointers.addChild(positionToAdd)
             }
         }

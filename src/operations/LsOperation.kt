@@ -11,8 +11,8 @@ class LsOperation(
             "" -> {
                 val current = context.newCurrentDirectory()
                 current.parseBinary(context.hardDisk.readBlock(context.currentDiskPosition))
-                val pointers = context.newPointers(current.getChildrenPointer())
-                val children = pointers.parseBinary(context.hardDisk.readBlock(current.getChildrenPointer()))
+                val pointers = context.newPointers(current.childrenPointer)
+                val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
                 for (entry in children) {
                     result += entry
                     result += "\n"

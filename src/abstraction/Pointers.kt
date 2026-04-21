@@ -52,7 +52,7 @@ class Pointers(
                         )
                     entry.parseBinary(block)
                     val result =
-                        entry.getName().replace(0.toChar().toString(), "") +
+                        entry.name.replace(0.toChar().toString(), "") +
                             "-" + position + "-" + (i - fsConstants.POINTER_USED_START)
                     childrenList.add(result)
                 }
@@ -115,7 +115,7 @@ class Pointers(
                             logger,
                         )
                     entry.parseBinary(block)
-                    val result = entry.getName().replace(0.toChar().toString(), "") + "-" + position
+                    val result = entry.name.replace(0.toChar().toString(), "") + "-" + position
                     childrenList.add(result)
                 }
                 if (block.subSequence(0, 2) == "01") {

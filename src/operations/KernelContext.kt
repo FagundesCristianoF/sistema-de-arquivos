@@ -160,8 +160,8 @@ class DefaultKernelContext(
         val output = StringBuilder()
         val current = newCurrentDirectory()
         current.parseBinary(hardDisk.readBlock(directoryPointer))
-        val pointers = newPointers(current.getChildrenPointer())
-        val children = pointers.parseBinary(hardDisk.readBlock(current.getChildrenPointer()))
+        val pointers = newPointers(current.childrenPointer)
+        val children = pointers.parseBinary(hardDisk.readBlock(current.childrenPointer))
         for (i in children.indices) {
             val split = children[i].split("-")
             if (split[0].contains(".txt")) {
@@ -178,9 +178,9 @@ class DefaultKernelContext(
                 val directory = newCurrentDirectory()
                 directory.parseBinary(hardDisk.readBlock(split[1].toInt()))
                 output.append(" ")
-                output.append(directory.getPermission())
+                output.append(directory.permission)
                 output.append(" ")
-                output.append(directory.getDate())
+                output.append(directory.date)
                 output.append("\n")
             }
         }
@@ -194,7 +194,7 @@ class DefaultKernelContext(
         var found = -1
         val current = newCurrentDirectory()
         current.parseBinary(hardDisk.readBlock(directoryPointer))
-        val childrenPointer = current.getChildrenPointer()
+        val childrenPointer = current.childrenPointer
         val pointers = newPointers(childrenPointer)
         val children = pointers.parseBinary(hardDisk.readBlock(childrenPointer))
         for (i in children.indices) {
@@ -212,7 +212,7 @@ class DefaultKernelContext(
         if (directoryPointer != 0) {
             val current = newCurrentDirectory()
             current.parseBinary(hardDisk.readBlock(directoryPointer))
-            return currentPath(current.getParent()) + "/" + current.getName()
+            return currentPath(current.parent) + "/" + current.name
         }
         return ""
     }
@@ -234,7 +234,7 @@ class DefaultKernelContext(
                 ".." -> {
                     current = newCurrentDirectory()
                     current.parseBinary(hardDisk.readBlock(currentPointer))
-                    currentPointer = current.getParent()
+                    currentPointer = current.parent
                 }
 
                 "." -> {
@@ -277,10 +277,10 @@ class DefaultKernelContext(
     ) {
         val current = newCurrentDirectory()
         current.parseBinary(hardDisk.readBlock(directoryPointer))
-        log("At " + current.getName())
-        val pointers = newPointers(current.getChildrenPointerPosition())
-        log("Children pointer " + current.getChildrenPointerPosition())
-        val children = pointers.parseBinary(hardDisk.readBlock(current.getChildrenPointerPosition()))
+        log("At " + current.name)
+        val pointers = newPointers(current.childrenPointerPosition)
+        log("Children pointer " + current.childrenPointerPosition)
+        val children = pointers.parseBinary(hardDisk.readBlock(current.childrenPointerPosition))
         for (i in 1 until children.size) {
             log("Children")
             val split = children[i].split("-")

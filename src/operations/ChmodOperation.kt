@@ -65,8 +65,8 @@ class ChmodOperation(
             val directoryPointer = context.resolveDirectoryPointer(context.currentDiskPosition, path)
             val current = context.newCurrentDirectory()
             current.parseBinary(context.hardDisk.readBlock(directoryPointer))
-            val pointers = context.newPointers(current.getChildrenPointer())
-            val children = pointers.parseBinary(context.hardDisk.readBlock(current.getChildrenPointer()))
+            val pointers = context.newPointers(current.childrenPointer)
+            val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
             for (i in children.indices) {
                 val split = children[i].split("-")
                 if (split[0] == pathParts[pathParts.size - 1]) {
@@ -79,8 +79,8 @@ class ChmodOperation(
                     } else {
                         val directory = context.newCurrentDirectory()
                         directory.parseBinary(context.hardDisk.readBlock(split[1].toInt()))
-                        context.log("Directory name " + directory.getName())
-                        directory.setPermission(permissionString.toString())
+                        context.log("Directory name ${directory.name}")
+                        directory.permission = permissionString.toString()
                         directory.updatePermission(split[1].toInt())
                     }
                 }

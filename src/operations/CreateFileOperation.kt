@@ -17,8 +17,8 @@ class CreateFileOperation(
         val fileName = nameParts[nameParts.size - 1]
         val current = context.newCurrentDirectory()
         current.parseBinary(context.hardDisk.readBlock(directoryPointer))
-        val pointers = context.newPointers(current.getChildrenPointer())
-        val children = pointers.parseBinary(context.hardDisk.readBlock(current.getChildrenPointer()))
+        val pointers = context.newPointers(current.childrenPointer)
+        val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
         if (context.fileDoesNotExist(children, fileName)) {
             val contentBuilder = StringBuilder()
             for (i in 1 until parts.size) {
@@ -40,7 +40,7 @@ class CreateFileOperation(
                 }
                 i++
             }
-            val file = context.newFileEntry(fileName, finalContent, current.getCurrentPosition())
+            val file = context.newFileEntry(fileName, finalContent, current.currentPosition)
             val filePosition = context.spaceManager.getFreePosition()
             context.hardDisk.writeBlock(file.generateBinary(), filePosition)
             pointers.addChild(filePosition)

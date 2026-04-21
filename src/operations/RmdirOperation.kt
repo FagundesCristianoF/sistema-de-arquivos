@@ -17,19 +17,19 @@ class RmdirOperation(
         val directoryPointer = context.resolveDirectoryPointer(context.currentDiskPosition, params)
         val current = context.newCurrentDirectory()
         current.parseBinary(context.hardDisk.readBlock(directoryPointer))
-        context.log("Parent name " + current.getName())
+        context.log("Parent name " + current.name)
         val targetName = directories[directories.size - 1].replace(" ", "")
         context.log("Looking for $targetName")
-        val pointers = context.newPointers(current.getChildrenPointer())
-        val children = pointers.parseBinary(context.hardDisk.readBlock(current.getChildrenPointer()))
+        val pointers = context.newPointers(current.childrenPointer)
+        val children = pointers.parseBinary(context.hardDisk.readBlock(current.childrenPointer))
         if (children.size == 1) {
             val parentPointer = pointers.getParent()
             val parent = context.newCurrentDirectory()
             parent.parseBinary(context.hardDisk.readBlock(parentPointer))
             val grandParent = context.newCurrentDirectory()
-            grandParent.parseBinary(context.hardDisk.readBlock(parent.getParent()))
-            val parentPointers = context.newPointers(grandParent.getChildrenPointer())
-            val parentChildren = parentPointers.parseBinary(context.hardDisk.readBlock(grandParent.getChildrenPointer()))
+            grandParent.parseBinary(context.hardDisk.readBlock(parent.parent))
+            val parentPointers = context.newPointers(grandParent.childrenPointer)
+            val parentChildren = parentPointers.parseBinary(context.hardDisk.readBlock(grandParent.childrenPointer))
             var removed = false
             var i = 1
             while (i < parentChildren.size) {

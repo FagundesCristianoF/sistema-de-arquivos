@@ -14,7 +14,7 @@ class CdOperation(
             ".." -> {
                 current = context.newCurrentDirectory()
                 current.parseBinary(context.hardDisk.readBlock(context.currentDiskPosition))
-                positionAux = current.getParent()
+                positionAux = current.parent
             }
 
             "/" -> {

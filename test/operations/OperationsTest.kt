@@ -41,9 +41,9 @@ class OperationsTest {
         every { context.newCurrentDirectory() } returnsMany listOf(current, parent)
         every { context.newCurrentDirectory("dir", 0) } returns child
         every { hardDisk.readBlock(any()) } returns "block"
-        every { current.getChildrenPointer() } returns 1
-        every { parent.getChildrenPointer() } returns 2
-        every { child.getCurrentPosition() } returns 5
+        every { current.childrenPointer } returns 1
+        every { parent.childrenPointer } returns 2
+        every { child.currentPosition } returns 5
         every { context.newPointers(1) } returns pointers
         every { context.newPointers(2) } returns parentPointers
         every { pointers.parseBinary(any()) } returns arrayListOf()
@@ -79,7 +79,7 @@ class OperationsTest {
         every { context.currentDiskPosition } returns 0
         every { context.resolveDirectoryPointer(0, "dir") } returns 3
         every { context.newCurrentDirectory() } returns current
-        every { current.getChildrenPointer() } returns 4
+        every { current.childrenPointer } returns 4
         every { context.newPointers(4) } returns pointers
         every { hardDisk.readBlock(any()) } returns "block"
         every { pointers.parseBinary(any()) } returns arrayListOf("..-0", "child-1-0")
@@ -131,7 +131,7 @@ class OperationsTest {
         every { context.currentDiskPosition } returns 0
         every { context.resolveDirectoryPointer(0, "/home") } returns 7
         every { context.newCurrentDirectory() } returns current
-        every { current.getChildrenPointer() } returns 9
+        every { current.childrenPointer } returns 9
         every { context.newPointers(9) } returns pointers
         every { hardDisk.readBlock(any()) } returns "block"
         every { pointers.parseBinary(any()) } returns arrayListOf()
@@ -152,7 +152,7 @@ class OperationsTest {
         every { context.currentDiskPosition } returns 0
         every { context.resolveDirectoryPointer(0, "file.txt") } returns 3
         every { context.newCurrentDirectory() } returns current
-        every { current.getChildrenPointer() } returns 6
+        every { current.childrenPointer } returns 6
         every { context.newPointers(6) } returns pointers
         every { hardDisk.readBlock(any()) } returns "block"
         every { pointers.parseBinary(any()) } returns arrayListOf()
@@ -174,7 +174,7 @@ class OperationsTest {
         every { context.currentDiskPosition } returns 0
         every { context.resolveDirectoryPointer(0, "") } returns 2
         every { context.newCurrentDirectory() } returns current
-        every { current.getChildrenPointer() } returns 4
+        every { current.childrenPointer } returns 4
         every { context.newPointers(4) } returns pointers
         every { hardDisk.readBlock(any()) } returns "block"
         every { pointers.parseBinary(any()) } returns arrayListOf("file.txt-3-0")
