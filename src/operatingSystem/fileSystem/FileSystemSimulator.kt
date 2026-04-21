@@ -4,7 +4,6 @@ import infra.ConsoleLogger
 import infra.Logger
 import operatingSystem.Kernel
 import java.awt.event.KeyEvent
-import java.util.ArrayList
 
 class FileSystemSimulator(
     private var myKernel: Kernel?,
@@ -13,7 +12,7 @@ class FileSystemSimulator(
     private var lastCommand = ""
     private var lastResult = ""
     private var base = ""
-    private var history: ArrayList<String> = ArrayList()
+    private var history: MutableList<String> = mutableListOf()
     private var position = 0
 
     /**
@@ -163,101 +162,26 @@ class FileSystemSimulator(
     // End of variables declaration//GEN-END:variables
 
     private fun dispatchCommand(command: String) {
-        if (command.trim() != "") {
-            val args = command.split(" ")
-            if (args[0] == "cd") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.cd(command.trim().substring(3, command.trim().length))
-                    } else {
-                        myKernel!!.cd("")
-                    }
-            } else if (args[0] == "ls") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.ls(command.trim().substring(3, command.trim().length))
-                    } else {
-                        myKernel!!.ls("")
-                    }
-            } else if (args[0] == "mkdir") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.mkdir(command.trim().substring(6, command.trim().length))
-                    } else {
-                        myKernel!!.mkdir("")
-                    }
-            } else if (args[0] == "rmdir") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.rmdir(command.trim().substring(6, command.trim().length))
-                    } else {
-                        myKernel!!.rmdir("")
-                    }
-            } else if (args[0] == "cp") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.cp(command.trim().substring(3, command.trim().length))
-                    } else {
-                        myKernel!!.cp("")
-                    }
-            } else if (args[0] == "mv") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.mv(command.trim().substring(3, command.trim().length))
-                    } else {
-                        myKernel!!.mv("")
-                    }
-            } else if (args[0] == "rm") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.rm(command.trim().substring(3, command.trim().length))
-                    } else {
-                        myKernel!!.rm("")
-                    }
-            } else if (args[0] == "chmod") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.chmod(command.trim().substring(6, command.trim().length))
-                    } else {
-                        myKernel!!.chmod("")
-                    }
-            } else if (args[0] == "createfile") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.createfile(command.trim().substring(11, command.trim().length))
-                    } else {
-                        myKernel!!.createfile("")
-                    }
-            } else if (args[0] == "clear") {
-                textArea.text = ""
-            } else if (args[0] == "cat") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.cat(command.trim().substring(4, command.trim().length))
-                    } else {
-                        myKernel!!.cat("")
-                    }
-            } else if (args[0] == "batch") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.batch(command.trim().substring(6, command.trim().length))
-                    } else {
-                        myKernel!!.batch("")
-                    }
-            } else if (args[0] == "dump") {
-                lastResult =
-                    if (args.size != 1) {
-                        myKernel!!.dump(command.trim().substring(5, command.trim().length))
-                    } else {
-                        myKernel!!.batch("")
-                    }
-            } else if (args[0] == "info") {
-                lastResult = myKernel!!.info()
-            } else if (args[0] == "exit") {
-                System.exit(0)
-            } else {
-                lastResult = "$command: Invalid command."
-            }
+        if (command.trim().isEmpty()) return
+        val args = command.trim().split(" ")
+        val arg = if (args.size > 1) command.trim().substringAfter("${args[0]} ") else ""
+        when (args[0]) {
+            "cd" -> lastResult = myKernel!!.cd(arg)
+            "ls" -> lastResult = myKernel!!.ls(arg)
+            "mkdir" -> lastResult = myKernel!!.mkdir(arg)
+            "rmdir" -> lastResult = myKernel!!.rmdir(arg)
+            "cp" -> lastResult = myKernel!!.cp(arg)
+            "mv" -> lastResult = myKernel!!.mv(arg)
+            "rm" -> lastResult = myKernel!!.rm(arg)
+            "chmod" -> lastResult = myKernel!!.chmod(arg)
+            "createfile" -> lastResult = myKernel!!.createfile(arg)
+            "clear" -> textArea.text = ""
+            "cat" -> lastResult = myKernel!!.cat(arg)
+            "batch" -> lastResult = myKernel!!.batch(arg)
+            "dump" -> lastResult = if (args.size > 1) myKernel!!.dump(arg) else myKernel!!.batch("")
+            "info" -> lastResult = myKernel!!.info()
+            "exit" -> System.exit(0)
+            else -> lastResult = "$command: Invalid command."
         }
     }
 
