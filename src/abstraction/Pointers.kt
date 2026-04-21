@@ -16,8 +16,8 @@ class Pointers(
     var parent = 0
     var hasContinuation = false
     var nextPointer = 0
-    val usedSlots = BooleanArray(fsConstants.POINTERS_COUNT)
-    val children = IntArray(fsConstants.POINTERS_COUNT)
+    private val usedSlots = BooleanArray(fsConstants.POINTERS_COUNT)
+    private val children = IntArray(fsConstants.POINTERS_COUNT)
 
     fun parseBinary(binary: String): MutableList<String> {
         val childrenList = mutableListOf<String>()
@@ -64,7 +64,6 @@ class Pointers(
                 val inicio =
                     (i - fsConstants.POINTER_USED_START) * fsConstants.POINTER_BITS +
                         fsConstants.POINTER_CHILDREN_START
-                nextPointers.usedSlots[i - fsConstants.POINTER_USED_START] = true
                 val position =
                     binary.substring(inicio, inicio + fsConstants.POINTER_BITS).toInt(2)
                 val block = hardDisk.readBlock(position)
@@ -82,10 +81,18 @@ class Pointers(
         position: Int,
         slotIndex: Int,
     ): String? =
-        when (block.substring(0, 2)) {
+        when (block.take(2)) {
             "00" -> {
                 val entry =
-                    CurrentDirectory(hardDisk, spaceManager, fsConstants, binaryFormat, permissionUtils, content, logger)
+                    CurrentDirectory(
+                        hardDisk,
+                        spaceManager,
+                        fsConstants,
+                        binaryFormat,
+                        permissionUtils,
+                        content,
+                        logger,
+                    )
                 entry.parseBinary(block)
                 "${entry.name.replace(0.toChar().toString(), "")}-$position-$slotIndex"
             }
@@ -109,15 +116,15 @@ class Pointers(
         buildString {
             append("10")
             append(padBinary(parent.toString(2), fsConstants.POINTER_BITS))
-            val usedBits = StringBuilder()
-            val childrenBits = StringBuilder()
+            var usedBits = ""
+            var childrenBits = ""
             for (i in 0 until fsConstants.POINTERS_COUNT) {
                 if (usedSlots[i]) {
-                    usedBits.append("1")
-                    childrenBits.append(padBinary(children[i].toString(2), fsConstants.POINTER_BITS))
+                    usedBits += "1"
+                    childrenBits += padBinary(children[i].toString(2), fsConstants.POINTER_BITS)
                 } else {
-                    usedBits.append("0")
-                    childrenBits.append(emptyPointer())
+                    usedBits += "0"
+                    childrenBits += emptyPointer()
                 }
             }
             append(usedBits)

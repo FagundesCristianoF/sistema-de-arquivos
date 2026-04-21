@@ -162,8 +162,8 @@ class DefaultKernelContext(
         val pointers = newPointers(current.childrenPointer)
         val children = pointers.parseBinary(hardDisk.readBlock(current.childrenPointer))
         return buildString {
-            for (i in children.indices) {
-                val split = children[i].split("-")
+            for (child in children) {
+                val split = child.split("-")
                 if (split[0].contains(".txt")) {
                     append(split[0])
                     val file = newFileEntry()
