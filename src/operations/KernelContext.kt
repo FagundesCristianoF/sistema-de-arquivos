@@ -197,8 +197,8 @@ class DefaultKernelContext(
         val childrenPointer = current.childrenPointer
         val pointers = newPointers(childrenPointer)
         val children = pointers.parseBinary(hardDisk.readBlock(childrenPointer))
-        for (i in children.indices) {
-            val split = children[i].split("-")
+        for (child in children) {
+            val split = child.split("-")
             val cleanName = split[0].replace(0.toChar().toString(), "")
             if (cleanName == name) {
                 found = split[1].toInt()

@@ -71,7 +71,13 @@ class Pointers(
                 if (result != null) childrenList.add(result)
             }
         }
-        if (hasContinuation) {
+        val continuationFlagIndex =
+            fsConstants.POINTER_CHILDREN_START + fsConstants.POINTERS_COUNT * fsConstants.POINTER_BITS
+        nextPointers.hasContinuation = binary[continuationFlagIndex] == '1'
+        val nextPtrStart = continuationFlagIndex + 1
+        nextPointers.nextPointer =
+            binary.substring(nextPtrStart, nextPtrStart + fsConstants.POINTER_BITS).toInt(2)
+        if (nextPointers.hasContinuation) {
             loadMoreChildren(childrenList, nextPointers.nextPointer)
         }
     }
