@@ -237,10 +237,6 @@ class DefaultKernelContext(
                     currentPointer = current.parent
                 }
 
-                "." -> {
-                    currentPointer = currentPointer
-                }
-
                 "~" -> {
                     currentPointer = 0
                 }

@@ -14,47 +14,24 @@ class ChmodOperation(
             } else {
                 args[1]
             }
-        val permissionString = StringBuilder("-")
-        for (i in 0..2) {
-            when (permissionBits[i]) {
-                '0' -> {
-                    permissionString.append("---")
-                }
-
-                '1' -> {
-                    permissionString.append("--w")
-                }
-
-                '2' -> {
-                    permissionString.append("-x-")
-                }
-
-                '3' -> {
-                    permissionString.append("-xw")
-                }
-
-                '4' -> {
-                    permissionString.append("r--")
-                }
-
-                '5' -> {
-                    permissionString.append("r-w")
-                }
-
-                '6' -> {
-                    permissionString.append("rx-")
-                }
-
-                '7' -> {
-                    permissionString.append("rxw")
-                }
-
-                else -> {
-                    context.log("Permission error")
-                    result = "Permission error"
+        val permissionString =
+            buildString {
+                append("-")
+                for (i in 0..2) {
+                    append(
+                        when (permissionBits[i]) {
+                            '7' -> "rwx"
+                            '6' -> "rw-"
+                            '5' -> "r-x"
+                            '4' -> "r--"
+                            '3' -> "-wx"
+                            '2' -> "-w-"
+                            '1' -> "--x"
+                            else -> "---"
+                        },
+                    )
                 }
             }
-        }
         context.log(permissionString)
         if (args.size == 2) {
             val pathParts = args[1].split("/")
@@ -74,13 +51,13 @@ class ChmodOperation(
                         val file = context.newFileEntry()
                         file.parseBinary(context.hardDisk.readBlock(split[1].toInt()))
                         file.currentPosition = split[1].toInt()
-                        file.permission = permissionString.toString()
+                        file.permission = permissionString
                         file.updatePermission(split[1].toInt())
                     } else {
                         val directory = context.newCurrentDirectory()
                         directory.parseBinary(context.hardDisk.readBlock(split[1].toInt()))
                         context.log("Directory name ${directory.name}")
-                        directory.permission = permissionString.toString()
+                        directory.permission = permissionString
                         directory.updatePermission(split[1].toInt())
                     }
                 }
