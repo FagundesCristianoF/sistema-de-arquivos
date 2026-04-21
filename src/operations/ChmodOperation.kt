@@ -4,7 +4,6 @@ class ChmodOperation(
     private val context: KernelContext,
 ) : Operation() {
     override fun execute(parameters: String): String {
-        var result = ""
         context.log("System call: chmod")
         context.log("\tParameters: $parameters")
         val args = parameters.split(" ")
@@ -63,6 +62,6 @@ class ChmodOperation(
                 }
             }
         }
-        return result
+        return ""
     }
 }
