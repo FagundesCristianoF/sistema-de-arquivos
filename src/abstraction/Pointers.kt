@@ -66,7 +66,7 @@ class Pointers(
                         )
                     entry.parseBinary(block)
                     val result =
-                        entry.getName().replace(0.toChar().toString(), "") +
+                        entry.name.replace(0.toChar().toString(), "") +
                             "-" + position + "-" + (i - fsConstants.POINTER_USED_START)
                     childrenList.add(result)
                 }
@@ -127,7 +127,7 @@ class Pointers(
                             content,
                         )
                     entry.parseBinary(block)
-                    childrenList.add(entry.getName() + "-" + nextPointers.getChildren()[position])
+                    childrenList.add(entry.name + "-" + nextPointers.getChildren()[position])
                 }
             }
         }

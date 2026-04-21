@@ -28,7 +28,7 @@ class CatOperation(
             if (split[0] == aux[aux.size - 1]) {
                 val file = context.newFileEntry()
                 file.parseBinary(context.hardDisk.readBlock(split[1].toInt()))
-                result = context.content.parseBinary(context.hardDisk.readBlock(file.getContentPointer()))
+                result = context.content.parseBinary(context.hardDisk.readBlock(file.contentPointer))
                 break
             }
         }

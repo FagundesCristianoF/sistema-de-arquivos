@@ -73,8 +73,8 @@ class ChmodOperation(
                     if (split[0].contains(".txt")) {
                         val file = context.newFileEntry()
                         file.parseBinary(context.hardDisk.readBlock(split[1].toInt()))
-                        file.setCurrentPosition(split[1].toInt())
-                        file.setPermission(permissionString.toString())
+                        file.currentPosition = split[1].toInt()
+                        file.permission = permissionString.toString()
                         file.updatePermission(split[1].toInt())
                     } else {
                         val directory = context.newCurrentDirectory()

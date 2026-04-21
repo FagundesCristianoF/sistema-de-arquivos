@@ -179,7 +179,7 @@ class OperationsTest {
         every { hardDisk.readBlock(any()) } returns "block"
         every { pointers.parseBinary(any()) } returns arrayListOf("file.txt-3-0")
         every { context.newFileEntry() } returns file
-        every { file.getContentPointer() } returns 9
+        every { file.contentPointer } returns 9
         every { context.content.parseBinary(any()) } returns "content"
 
         val result = CatOperation(context).execute("file.txt")

@@ -169,9 +169,9 @@ class DefaultKernelContext(
                 val file = newFileEntry()
                 file.parseBinary(hardDisk.readBlock(split[1].toInt()))
                 output.append(" ")
-                output.append(file.getPermission())
+                output.append(file.permission)
                 output.append(" ")
-                output.append(file.getDate())
+                output.append(file.date)
                 output.append("\n")
             } else {
                 output.append(split[0])
@@ -291,7 +291,7 @@ class DefaultKernelContext(
                 output.append(" ")
                 val file = newFileEntry()
                 file.parseBinary(hardDisk.readBlock(split[1].toInt()))
-                output.append(content.parseBinary(hardDisk.readBlock(file.getContentPointer())))
+                output.append(content.parseBinary(hardDisk.readBlock(file.contentPointer)))
             } else {
                 output.append("mkdir ")
                 output.append(split[0])
